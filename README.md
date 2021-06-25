@@ -12,3 +12,7 @@ insmod elevador.ko
 ```shell
 lsmod|grep elevador
 ```
+ou
+```shell
+ls /dev/elevador
+```
