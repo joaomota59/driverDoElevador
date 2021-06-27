@@ -21,3 +21,7 @@ ou
 ```shell
 ls /dev/elevador
 ```
+## Apagar arquivo de device
+```shell
+rmmod elevador
+```
