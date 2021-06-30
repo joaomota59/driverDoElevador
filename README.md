@@ -36,5 +36,6 @@ cat /dev/elevador
 ```shell
 rmmod elevador
 ```
-## Sobre a entrada
-A entrada é composta por uma série de números inteiros, indicando primeiro o número do último cilindro no disco (os cilindros variam de 0 até este número), o cilindro sobre o qual a cabeça de leitura está inicialmente posicionada e a sequência de requisições de acesso.
+## Sobre o driver...
+* O driver permite a escrita dos dados de entrada através do arquivo de device.
+* Os dados escritos serão a entrada do algoritmo(sequência de inteiros em que o primeiro número refere-se ao último cilindro, seguido pelo cilindro sobre o qual a cabeça de leitura está inicialmente possicionada e as requisições de acesso). Sempre que lido, o driver deve retornar quantidade total de cilindros percorridos pela cabeça de leitura para atender todas as requisições de acesso ao disco da última entrada enviada ao driver.
