@@ -15,7 +15,7 @@ make -C /lib/modules/5.9.14/build M=`pwd` modules
 ```shell
 insmod elevador.ko
 ```
-## Verifica se o modulo foi carregado
+## Verifica se o módulo foi carregado
 ```shell
 lsmod|grep elevador
 ```
