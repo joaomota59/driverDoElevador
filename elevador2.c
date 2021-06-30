@@ -23,17 +23,10 @@
 #include <linux/fcntl.h>
 #include <linux/aio.h>
 #include <linux/uaccess.h>
-#include <linux/slab.h>
 
 #include <linux/ioctl.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
-
-#include <linux/string.h>
-#include <linux/sort.h>
-//#include "math.h"
-//#include "/usr/include/stdlib.h"
-
 //Macros utilizadas para especificar informações relacionadas ao modulo
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Zhiyi Huang");
@@ -59,7 +52,6 @@ struct my_dev {
 } *elevador_dev;
 
 
-
 int elevador_open (struct inode *inode, struct file *filp)
 {
 	return 0;
@@ -70,111 +62,8 @@ int elevador_release (struct inode *inode, struct file *filp)
 	return 0;
 }
 
-
-
-int cmpfunc (const void * a, const void * b) {//função para auxilar no qsort
-   return ( *(int*)a - *(int*)b );
-}
-
-static int compare(const void *lhs, const void *rhs) {
-    int lhs_integer = *(const int *)(lhs);
-    int rhs_integer = *(const int *)(rhs);
-
-    if (lhs_integer < rhs_integer) return -1;
-    if (lhs_integer > rhs_integer) return 1;
-    return 0;
-}
-
-
-int algoritmoDoElevador(char *arr){
-    int bordaDoDisco,quantElemento,elementoInicial,posDoElementoInicial,soma;
-    int flagBordaDoDisco;
-    int tamanhoString,i;
-    flagBordaDoDisco = 0;
-    quantElemento = 0;//quantidade de elementos que foram passados
-    tamanhoString = strlen(arr);//tamanho da string de entrada
-
-	for(i=0;i< tamanhoString;i++){
-		if(arr[i]==' '){
-            quantElemento++;//quantidade de numeros no vetor menos a primeira entrada
-          }
-	}
-   int vetorElementos[MAX_DSIZE];
-   
-   int contador;//contador para o vetor de elementos
-   int auxToken;
-   contador = -1;
-   
-   //Split de todos numeros passados
-   char * token = strsep(&arr, " ");//split da string passada, strsep, funcao do kernel, separa a string em tokens
-   
-   char *ptr;
-   bordaDoDisco = (int)simple_strtol(token,&ptr,10);//pega o primeiro numero que é a borda do disco
-   
-   
-   while( contador < quantElemento ) {//while necessario para fazer o split
-      //printf( " %s\n", token ); //printing each token
-      
-      
-      auxToken = simple_strtol(token,&ptr,10);
-      if(auxToken>bordaDoDisco && contador!=-1){//se algum elemento for maior que a borda do disco...
-		flagBordaDoDisco = 1;
-		break;  
-      }
-      if(contador!=-1){
-      	vetorElementos[contador] = auxToken;//pega todos elementos menos o primeiro
-      }
-	
-      if(token!=NULL){//so separa os tokens so se ainda tiver ainda como separar 
-	token = strsep(&arr, " ");
-      }	
-	contador = contador + 1;
-      
-	/*  
-      	
-	*/
-
-   }
-   
- 
-   
-   if(flagBordaDoDisco == 1){ //entao é porque a entrada passada é maior que a borda do disco entao não pode
-		return -1;
-   }
-   
-   
-   elementoInicial = vetorElementos[0];//primeiro elemento, antes de ordenar
-   
-   sort(vetorElementos, quantElemento, sizeof(int), &compare,NULL);//função que ordena a entrada em ordem crescente
-   
-   for(i=0;i<quantElemento;i++){
-   	
-		   if(vetorElementos[i]==elementoInicial){
-			posDoElementoInicial = i; //indice do elemento inicial no vetor ordenado
-            break;
-	   }
-   }
-   
-
-   soma = 0;
-   for (i=posDoElementoInicial;i<quantElemento-1;i++){//todos elementos a frente do elemento inicial no vetor ordenado
-		  soma+=abs(vetorElementos[i+1]-vetorElementos[i]);//ou seja vai no sentido mais externo do disco
-   }
-  
-      
-   for (i=posDoElementoInicial;i>0;i--){
-		  if (i==posDoElementoInicial){//condicao para pegar o ultimo elemento do loop anterior e subtrair com o anterior do primeiro elemento
-			 soma += abs(vetorElementos[quantElemento-1] - vetorElementos[i-1]);
-		  }
-		  else{
-			  soma += abs(vetorElementos[i]-vetorElementos[i-1]);
-		  }
-   }
-
-	return soma;
-	
-	
-	
+int algoritmoDoElevador(void){
+	return 0;
 }
 
 
@@ -198,9 +87,6 @@ ssize_t elevador_read (struct file *filp, char __user *buf, size_t count,loff_t 
 	int rv=0;
 
 printk(KERN_WARNING " f_pos: %lld; count: %zu;\n", *f_pos, count);
-
-
-
 	if (down_interruptible (&elevador_dev->sem))//Inicio da regiao critica
 		return -ERESTARTSYS;
 	if (*f_pos > MAX_DSIZE)//verifica se já leu tudo do buffer do device  
@@ -210,34 +96,20 @@ printk(KERN_WARNING " f_pos: %lld; count: %zu;\n", *f_pos, count);
     //Função para copiar dados do espaço do kernel(elevador_dev->data) para
 	//o espaço do usuário(buf). Count  é a quantidade de dados a ser copiado.
 	
-	int resultado;
-	resultado = algoritmoDoElevador(elevador_dev->data);//passa para funcao a string recebida com echo
+	elevador_dev->data[0] = "k";
 	
-	char resultadoEmString[MAX_DSIZE+1];
-	
-	
-	if (resultado == -1){//deu errado, algum elemento passado eh maior que a borda do disco
-		strcpy(elevador_dev->data,"Impossivel Calcular- Existe um elemento maior que a borda do disco!\n");
-		strcpy(resultadoEmString,"Impossivel Calcular- Existe um elemento maior que a borda do disco!\n");
-	}
-	else{//se der certo, entao joga o resultado obtido da funcao do elevador
-		snprintf(resultadoEmString,MAX_DSIZE+1,"%d",resultado);//converte o resultado de inteiro para string
-		strcat(resultadoEmString,"\n");
-		strcpy(elevador_dev->data,resultadoEmString);
-	}
-	  
-	if (copy_to_user (buf, elevador_dev->data+*f_pos, strlen(resultadoEmString))) {
+	if (copy_to_user (buf, elevador_dev->data+*f_pos, count)) {
 		rv = -EFAULT;
 		goto wrap_up;
 	}
 	up (&elevador_dev->sem);
 	*f_pos += count;//Avança a posição atual de leitura
 	return count;
+	
 
 wrap_up:
 	up (&elevador_dev->sem);
 	return rv;
-
 }
 
 ssize_t elevador_write (struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
@@ -400,7 +272,7 @@ void __exit elevador_exit_module(void){
 	cdev_del(&elevador_dev->cdev); 
 	kfree(elevador_dev);
 	unregister_chrdev_region(MKDEV(major, 0), 1);
-	printk(KERN_WARNING "Good bye from late Module\n");
+	printk(KERN_WARNING "Good bye from elevadorlate Module\n");
 }
 
 //Funções de callback chamadas na inicialização e no desligamento do módulo.
