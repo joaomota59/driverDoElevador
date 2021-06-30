@@ -23,10 +23,7 @@ ou
 ```shell
 ls /dev/elevador
 ```
-## Caso queira apagar arquivo de device criado
-```shell
-rmmod elevador
-```
+
 ## Envio de entrada para o driver
 ```shell
 echo "199 53 98 183 37 122 14 124 65 67">/dev/elevador
@@ -34,4 +31,9 @@ echo "199 53 98 183 37 122 14 124 65 67">/dev/elevador
 ## Obtendo resultado do driver
 ```shell
 cat /dev/elevador
+```
+
+## Caso queira apagar arquivo de device criado
+```shell
+rmmod elevador
 ```
