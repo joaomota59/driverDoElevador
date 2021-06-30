@@ -95,6 +95,8 @@ printk(KERN_WARNING " f_pos: %lld; count: %zu;\n", *f_pos, count);
 		count = MAX_DSIZE - *f_pos;//Ajusta count 
     //Função para copiar dados do espaço do kernel(elevador_dev->data) para
 	//o espaço do usuário(buf). Count  é a quantidade de dados a ser copiado.
+	
+	elevador_dev->data[0]='K';
 	if (copy_to_user (buf, elevador_dev->data+*f_pos, count)) {
 		rv = -EFAULT;
 		goto wrap_up;
