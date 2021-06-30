@@ -99,7 +99,7 @@ int algoritmoDoElevador(char *arr){
             quantElemento++;//quantidade de numeros no vetor menos a primeira entrada
           }
 	}
-   int vetorElementos[MAX_DSIZE];
+   int vetorElementos[MAX_DSIZE+1];
    
    int contador;//contador para o vetor de elementos
    int auxToken;
